@@ -14,7 +14,6 @@ origins = [
     "http://localhost:5173",
 ]
 
-MONGO_URI = "mongodb+srv://mongodbacc:mongodbacc@cluster0.ny1gw.mongodb.net/"
 DATABASE_NAME = "db_jetsetgo"
 
 
