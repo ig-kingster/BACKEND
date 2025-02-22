@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile,Form
+from fastapi import FastAPI, HTTPException, File, UploadFile,Form,Request
 from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
@@ -14,6 +14,7 @@ origins = [
     "http://localhost:5173",
 ]
 
+MONGO_URI = ""
 DATABASE_NAME = "db_jetsetgo"
 
 
@@ -139,12 +140,12 @@ async def create_hotel(hotel:Hotel):
 
 
 class User(BaseModel):
-    user_name : str
+    # user_name : str
     user_email : str
-    user_phone_number : int
-    place_id : str
-    user_idproof : str
-    user_photo : str
+    # user_phone_number : int
+    # place_id : str
+    # user_idproof : str
+    # user_photo : str
     user_password : str
 
 
@@ -153,7 +154,7 @@ class User(BaseModel):
 @app.post('/user')
 async def create_user(user:User):
     user_data = user.model_dump()
-    result = await app.state.db["tbl_user"].insert_one(user_data)
+    result = await app.state.db["user"].insert_one(user_data)
     return{"id": str(result.inserted_id),"message": "user added sucessfully"}
 
 
@@ -313,4 +314,33 @@ async def create_user(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create user: {str(e)}")
 
+# class Login(BaseModel):
+#     User_email : str
+#     User_password : str
+
+# @app.post('/login')
+# async def read_user(user: Login):
+#     userData = await app.state.db["user"].find_one({"email": user.User_email, "password": user.User_password})
+
+#     if userData:
+#         return { 'id': str(userData['_id']), 'message': 'login successful','login':'User'}
+   
+#     else:
+#         return { 'message': 'Invalid credentials' }
+
+class Login(BaseModel):
+    user_email: str  # Lowercase to match MongoDB field
+    user_password: str
+
+@app.post('/login')
+async def read_user(user: Login):
+    userData = await app.state.db["user"].find_one({"user_email": user.user_email, "user_password": user.user_password})
+
+    if userData:
+        return { 'id': str(userData['_id']),
+                'email':str(userData['user_email']), 
+                'message': 'Login successful', 
+                'login': 'User'}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
