@@ -14,7 +14,6 @@ origins = [
     "http://localhost:5173",
 ]
 
-MONGO_URI = ""
 DATABASE_NAME = "db_jetsetgo"
 
 
